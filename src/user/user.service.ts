@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import { PrismaService } from 'prisma/prisma.service';
 import { handleError } from 'src/utils/handle-error.utils';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,10 +15,9 @@ import { User } from './entities/user.entity';
 export class UserService {
   private userSelect = {
     id: true,
-    nickname: true,
     name: true,
+    email: true,
     password: false,
-    image: true,
     createdAt: true,
     updatedAt: true,
   };
@@ -47,24 +47,8 @@ export class UserService {
     return this.findById(id);
   }
 
-  async create(dto: CreateUserDto): Promise<User> {
-    if (dto.password != dto.confirmPassword) {
-      throw new BadRequestException('As senhas informadas não são iguais.');
-    }
-
-    delete dto.confirmPassword;
-
-    const data: User = {
-      ...dto,
-      password: await bcrypt.hash(dto.password, 10),
-    };
-
-    return this.prisma.user
-      .create({
-        data,
-        select: this.userSelect,
-      })
-      .catch(handleError);
+   async create(dto: CreateUserDto) {
+    
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<User> {
